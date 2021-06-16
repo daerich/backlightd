@@ -1,1 +1,4 @@
 backlightd
+
+# Vim swap files
+*.swp
