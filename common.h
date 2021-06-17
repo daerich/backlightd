@@ -37,9 +37,10 @@ char ** ptr_tbl_add(char * ptr)
 		res[x]=ptr_tbl[x];
 	}
 	res[ptr_tbl_l]=ptr;
-	ptr_tbl_l++;
-	if(ptr_tbl_l > 0)
+	if(ptr_tbl_l > 0){
 		SAFE_FREE(ptr_tbl);
+	}
+	ptr_tbl_l++;
 	ptr_tbl=res;
 	return res;
 }

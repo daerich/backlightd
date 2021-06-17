@@ -55,21 +55,21 @@ int main(int argc, char**argv)
 		}
 
 	while(!eflag){
-	if( mode == 1){
-		brightness=read_drv(INTEL_STRING "brightness", READ,0);
-		max_bright=read_drv(INTEL_STRING "max_brightness",READ,0);
-	}
-	else
-		if( mode == 2){
-			brightness=read_drv(ACPI_STRING "brightness", READ,0);
-			max_bright=read_drv(ACPI_STRING "max_brightness",READ,0);
+		if( mode == 1){
+			brightness=read_drv(INTEL_STRING "brightness", READ,0);
+			max_bright=read_drv(INTEL_STRING "max_brightness",READ,0);
 		}
+		else
+			if( mode == 2){
+				brightness=read_drv(ACPI_STRING "brightness", READ,0);
+				max_bright=read_drv(ACPI_STRING "max_brightness",READ,0);
+			}
 		
 	
 		printf("Bright:%d,Max_Bright:%d\n",brightness,max_bright);
 		fflush(stdout); /* Flush before sleep */
 
-
+		free_buffers();
 		sleep(10);
 	}
 
