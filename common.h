@@ -6,7 +6,7 @@
 extern int ptr_tbl_l = 0;
 extern char ** ptr_tbl = NULL; 
 
-static char * addread(char* buf,char r, int length){
+char * addread(char* buf,char r, int length){
 	char * res=malloc((length+1) * sizeof(char));
 	
 	if(res == NULL){

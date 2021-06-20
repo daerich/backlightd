@@ -1,4 +1,5 @@
 backlightd
+backlightctl
 
 # Vim swap files
 *.swp
