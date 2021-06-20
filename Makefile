@@ -3,10 +3,10 @@ SRCS= backlightd.c
 # Your compiler
 CC=gcc
 OPTIONS="-Wall"
-VERSION='"0.2.5 - DevTest"'
+VERSION='"1.0"'
 
 all:
-	${CC} ${OPTIONS} -std=gnu17 ${SRCS} -o ${PROG}
+	${CC} ${OPTIONS} -std=gnu17 ${SRCS} -DCONFIGS='"/home/daerich/backlightd/backlight.conf"' -o ${PROG}
 
 debug:
 	${CC} ${OPTIONS} -g -std=gnu17 ${SRCS} -o ${PROG}
