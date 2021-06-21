@@ -47,7 +47,7 @@ static void usage(void)
 			"s:\n Set scale to value (in percent),where scale is a value\n"\
 			"between 10 and 100.\n\n"\
 			"Only the first letter is checked!\n"\
-			"Version "VERSION"by daerich.\n");
+			"Version " VERSION " by daerich.\n");
 }
 
 static void get_pid(void)

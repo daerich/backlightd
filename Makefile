@@ -5,11 +5,11 @@ PROG1= backlightctl
 # Your compiler
 CC=gcc
 OPTIONS="-Wall"
-VERSION='"1.0"'
+VERSION='"1.5"'
 
 all:
 	${CC} ${OPTIONS} -std=gnu17 ${SRCS} -DCONFIGS='"/home/daerich/backlightd/backlight.conf"' -o ${PROG}
-	${CC} ${OPTIONS} -std=gnu17 ${SRCS1} -DCONFIGS='"/home/daerich/backlightd/backlight.conf"' -o ${PROG1}
+	${CC} ${OPTIONS} -std=gnu17 ${SRCS1} -DVERSS=${VERSION} -DCONFIGS='"/home/daerich/backlightd/backlight.conf"' -o ${PROG1}
 
 test:
 	${CC} ${OPTIONS} -g -std=gnu17 -DDEBUG -DDPATH='"/tmp/backlight_test/"'  ${SRCS} -o ${PROG}
