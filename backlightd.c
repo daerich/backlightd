@@ -17,6 +17,7 @@ static int read_drv(char *,int,int);
 static void free_buffers(void);
 static void set_brightness(float);
 static void loop(int);
+static void post_pid(void);
 
 static int brightness = 0;
 static int max_bright = 0;
@@ -45,6 +46,7 @@ int main(int argc, char**argv)
 	openlog("backlightd",LOG_PID,LOG_DAEMON);
 	signal(SIGTERM,handler);
 	signal(SIGUSR1,handler);
+	post_pid();
 	
 	if(access(INTEL_STRING "brightness",(R_OK/*|W_OK*/)) == 0){
 		mode=INTEL;
@@ -185,6 +187,20 @@ static void loop(int firstrun)
 	fflush(stdout); /* Flush before sleep */
 #endif
 
+
+}
+
+static void post_pid(void)
+{
+	if(access("/tmp/backlightd.pid",R_OK) == 0)
+		unlink("/tmp/backlightd.pid");
+
+	FILE* strm = fopen("/tmp/backlightd.pid","w");
+	char buf[19]= {0};
+	snprintf(buf,19,"%lld",(long)getpid());
+	fwrite(buf,19,1,strm);
+	fclose(strm);
+	chmod("/tmp/backlightd.pid",(S_IRUSR));
 
 }
 
