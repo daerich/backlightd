@@ -22,6 +22,7 @@ static int brightness = 0;
 static int max_bright = 0;
 extern FILE * backlight = NULL;
 static volatile sig_atomic_t eflag = 0;
+static volatile sig_atomic_t sflag = 0;
 static enum COMM mode = 0;
 
 
@@ -35,7 +36,7 @@ static enum COMM mode = 0;
 
 #define INTEL_STRING DPATH
 #define ACPI_STRING DPATH
-#define CONFIG_STRING "/tmp/backlight_d.conf"
+#define CONFIG_STRING DPATH "backlight_d.conf"
 
 #endif
 
@@ -43,6 +44,7 @@ int main(int argc, char**argv)
 {
 	openlog("backlightd",LOG_PID,LOG_DAEMON);
 	signal(SIGTERM,handler);
+	signal(SIGUSR1,handler);
 	
 	if(access(INTEL_STRING "brightness",(R_OK/*|W_OK*/)) == 0){
 		mode=INTEL;
@@ -64,6 +66,11 @@ int main(int argc, char**argv)
 	loop(1);
 
 	while(!eflag){
+		if(sflag){
+			loop(1);
+			syslog(LOG_NOTICE,"Reloading backlight config");
+			sflag = 0;
+		}
 		sleep(3);
 	}
 	loop(0);
@@ -82,6 +89,9 @@ static void handler(int signal) /* Don't use non-async logic */
 {
 	if(signal == SIGTERM)
 		eflag = 1;
+	else if(signal == SIGUSR1)
+		sflag = 1;
+
 }
 
 static int read_drv(char * filen,int mode, int nbrights)
@@ -93,8 +103,9 @@ static int read_drv(char * filen,int mode, int nbrights)
 		char * buf = NULL;
 		int length = 0;
 		for(;(ch=fgetc(backlight))!= EOF;length++){
-			if(ch == '\n') /* We don't need newlines */
-				continue;
+			if(ch == '\n' ) /* We don't need newlines */
+				break;
+
 			buf=addread(buf,ch,length);
 		}
 		buf=addread(buf,'\0',length);
@@ -107,7 +118,7 @@ static int read_drv(char * filen,int mode, int nbrights)
 	}
 	else if(mode == WRITE){
 		backlight=fopen(filen,"r+");
-		char numbuf[12];
+		char numbuf[12] = {0};
 		snprintf(numbuf,12,"%d",nbrights);
 		fwrite(numbuf,1,12,backlight);
 
@@ -179,9 +190,9 @@ static void loop(int firstrun)
 
 static void set_brightness(float value)
 {	
-	if((value <= 0.0) || (value > 100.0) ){
+	if((value < 10.0) || (value > 100.0) ){
 		syslog(LOG_WARNING,"Error wrong value of %d!",value);
-		exit(1);
+		return;
 	}
 	
 	float scale = (value/100) * (float)max_bright;
