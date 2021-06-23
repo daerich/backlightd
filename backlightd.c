@@ -83,7 +83,7 @@ int main(int argc, char**argv)
 	if(backlight != NULL) 			
 		fclose(backlight);
 
-	printf("SIGTERM received\n");
+	printf("[backlightd]SIGTERM received\n");
 	syslog(LOG_WARNING,"Terminating on SIGTERM");
 exit: 	
 	free_buffers();
