@@ -8,6 +8,7 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <grp.h>
 
 #include "common.h"
 #include "backlightd.h"
@@ -18,6 +19,7 @@ static void free_buffers(void);
 static void set_brightness(float);
 static void loop(int);
 static void post_pid(void);
+static gid_t get_gid(char *);
 
 static int brightness = 0;
 static int max_bright = 0;
@@ -26,6 +28,7 @@ static volatile sig_atomic_t eflag = 0;
 static volatile sig_atomic_t sflag = 0;
 static enum COMM mode = 0;
 
+#define VIDEOGROUP VIDEOGROUPT
 
 #ifndef DEBUG
 
@@ -87,6 +90,16 @@ exit:
 	closelog();
 	return 0;
 }
+
+static gid_t get_gid(char * gidname)
+{
+	struct group * data = getgrnam(gidname);
+	if(data == NULL)
+		return 0;
+	else
+		return data->gr_gid;
+}
+
 static void handler(int signal) /* Don't use non-async logic */
 {
 	if(signal == SIGTERM)
@@ -146,6 +159,7 @@ static void loop(int firstrun)
 				}
 				else{
 					syslog(LOG_WARNING,"Can't find config_file!");
+					closelog();
 					exit(1);
 				}
 				firstrun = 0;
@@ -169,6 +183,7 @@ static void loop(int firstrun)
 					}
 					else{
 						syslog(LOG_WARNING,"Can't find config_file!");
+						closelog();
 						exit(1);
 					}
 				}
@@ -200,7 +215,13 @@ static void post_pid(void)
 	snprintf(buf,19,"%lld",(long)getpid());
 	fwrite(buf,19,1,strm);
 	fclose(strm);
-	chmod("/tmp/backlightd.pid",(S_IRUSR));
+	gid_t grpid = get_gid(VIDEOGROUP);
+	if(grpid == 0 )
+		syslog(LOG_WARNING,"Could'nt get gid of daemon process!"\
+				"backlightctl might be unusable!\n");
+	else 
+		chown("/tmp/backlightd.pid",getuid(),grpid);
+	chmod("/tmp/backlightd.pid",(S_IRUSR|S_IRGRP));
 
 }
 
