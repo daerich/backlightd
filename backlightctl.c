@@ -41,7 +41,7 @@ int main(int argc,char ** argv)
 static void usage(void)
 {
 	fprintf(stdout,"Usage:\n"\
-			"backlightctl [OPTION] VALUE\n"\
+			"backlightctl [OPTION] [VALUE]\n"\
 			"Where Option is one of:\n"\
 			"p:\n Print current backlight scale in percent\n"\
 			"s:\n Set scale to value (in percent),where scale is a value\n"\
