@@ -5,6 +5,7 @@
 #include <errno.h>
 
 #include "common.h"
+#include "procparse.h"
 
 #define VERSION VERSS
 #define CONFIG_STRING CONFIGS
@@ -20,7 +21,6 @@ int main(int argc,char ** argv)
 	if(argc == 1)
 		usage();
 	if(argc > 1){
-
 		switch(argv[1][0]){
 			case 'p':
 				printbckl();
@@ -93,7 +93,10 @@ static void backlightctl(char * const value)
 		snprintf(buf,12,"%d",scale);
 		fwrite(buf,1,12,strm);
 		fclose(strm);
-		get_pid();
+		backlightd_pid = procparse("backlightd");
+		if(backlightd_pid == 0)
+			fprintf(stderr,"Could'nt find pid,check for proc"\
+					"Permissions!");
 		if(kill(backlightd_pid,SIGUSR1)!= 0){
 			int err = errno;
 			fprintf(stdout,"Call failed!\n");

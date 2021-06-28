@@ -49,7 +49,9 @@ int main(int argc, char**argv)
 	openlog("backlightd",LOG_PID,LOG_DAEMON);
 	signal(SIGTERM,handler);
 	signal(SIGUSR1,handler);
+#ifdef POST_PID
 	post_pid();
+#endif 
 	
 	if(access(INTEL_STRING "brightness",(R_OK/*|W_OK*/)) == 0){
 		mode=INTEL;

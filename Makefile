@@ -12,6 +12,9 @@ all:
 	${CC} ${OPTIONS} -std=gnu17 ${SRCS} -DVIDEOGROUPT=${DAEMONGROUP} -DCONFIGS='"/home/daerich/backlightd/backlight.conf"' -o ${PROG}
 	${CC} ${OPTIONS} -std=gnu17 ${SRCS1} -DVERSS=${VERSION} -DCONFIGS='"/home/daerich/backlightd/backlight.conf"' -o ${PROG1}
 
+backlightctl:
+	${CC} ${OPTIONS} -std=gnu17 ${SRCS1} -DVERSS=${VERSION} -DCONFIGS='"/home/daerich/backlightd/backlight.conf"' -o ${PROG1}
+
 dist: all install
 
 test:
