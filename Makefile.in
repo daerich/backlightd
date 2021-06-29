@@ -6,14 +6,18 @@ PROG1= backlightctl
 CC=gcc
 OPTIONS="-Wall"
 VERSION='"1.8"'
+# Configure to your liking
 DAEMONGROUP='"video"'
+CONFIGMACRO='"/home/daerich/backlightd/backlight.conf"'
+CONFIG="/home/daerich/backlightd/backlight.conf"
 
-all:
-	${CC} ${OPTIONS} -std=gnu17 ${SRCS} -DVIDEOGROUPT=${DAEMONGROUP} -DCONFIGS='"/home/daerich/backlightd/backlight.conf"' -o ${PROG}
-	${CC} ${OPTIONS} -std=gnu17 ${SRCS1} -DVERSS=${VERSION} -DCONFIGS='"/home/daerich/backlightd/backlight.conf"' -o ${PROG1}
+all: backlightctl backlightd
 
 backlightctl:
-	${CC} ${OPTIONS} -std=gnu17 ${SRCS1} -DVERSS=${VERSION} -DCONFIGS='"/home/daerich/backlightd/backlight.conf"' -o ${PROG1}
+	${CC} ${OPTIONS} -std=gnu17 ${SRCS1} -DVERSS=${VERSION} -DCONFIGS=${CONFIGMACRO} -o ${PROG1}
+
+backlightd:
+	${CC} ${OPTIONS} -std=gnu17 ${SRCS} -DVIDEOGROUPT=${DAEMONGROUP} -DCONFIGS=${CONFIMACRO} -o ${PROG}
 
 dist: all install
 
@@ -23,6 +27,7 @@ test:
 
 install:
 	install -v -D -m 755 ${PROG1} /opt/bin/${PROG1}
+	install -v -D -m 644 distrib/backlight.conf ${CONFIG}
 
 clean:
 	rm -v ${PROG} ${PROG2}

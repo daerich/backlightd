@@ -3,3 +3,6 @@ backlightctl
 
 # Vim swap files
 *.swp
+
+Makefile
+!Makefile.in

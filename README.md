@@ -1,5 +1,17 @@
 # backlightd
 BacklightDaemon - to replace systemd-backlightd
+## Installation 
+```
+./configure.sh
+```
+
+```
+make 
+```
+
+```
+make install
+```
 
 ```
 BACKLIGHTCTL(1)             General Commands Manual            BACKLIGHTCTL(1)
