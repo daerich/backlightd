@@ -17,7 +17,7 @@ backlightctl:
 	${CC} ${OPTIONS} -std=gnu17 ${SRCS1} -DVERSS=${VERSION} -DCONFIGS=${CONFIGMACRO} -o ${PROG1}
 
 backlightd:
-	${CC} ${OPTIONS} -std=gnu17 ${SRCS} -DVIDEOGROUPT=${DAEMONGROUP} -DCONFIGS=${CONFIMACRO} -o ${PROG}
+	${CC} ${OPTIONS} -std=gnu17 ${SRCS} -DVIDEOGROUPT=${DAEMONGROUP} -DCONFIGS=${CONFIGMACRO} -o ${PROG}
 
 dist: all install
 
