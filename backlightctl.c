@@ -76,7 +76,7 @@ static void printbckl(void)
 		}
 	fclose(strm);
 	buf=addread(buf,'\0',length);
-	printf("Brightness scale: %s\n",buf);
+	printf("Brightness scale: %s%\n",buf);
 	free(buf);
 }
 

@@ -13,7 +13,7 @@ else
 fi
  
 awk -F "=" -v CONFIGVAR=$dir '{if($1~/^CONFIG/){print ($1 "=" "\"" CONFIGVAR "\"")} else {print}}' Makefile.in | 
-	awk -F "=" -v CONFIGVAR=$dir "{if(\$1~/CONFIGMACRO/){print (\$1 \"=\" \"'\\\"\" CONFIGVAR \"'\\\"\")}\
+	awk -F "=" -v CONFIGVAR=$dir "{if(\$1~/CONFIGMACRO/){print (\$1 \"=\" \"'\\\"\" CONFIGVAR \"\\\"'\")}\
 	else{print}}" > Makefile
 cat <<- "EOF" 
 	Done! 

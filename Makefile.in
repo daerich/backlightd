@@ -11,8 +11,10 @@ DAEMONGROUP='"video"'
 CONFIGMACRO='"/home/daerich/backlightd/backlight.conf"'
 CONFIG="/home/daerich/backlightd/backlight.conf"
 
-all: backlightctl backlightd
-
+all: 
+	${CC} ${OPTIONS} -std=gnu17 ${SRCS1} -DVERSS=${VERSION} -DCONFIGS=${CONFIGMACRO} -o ${PROG1}
+	${CC} ${OPTIONS} -std=gnu17 ${SRCS} -DVIDEOGROUPT=${DAEMONGROUP} -DCONFIGS=${CONFIGMACRO} -o ${PROG}
+		
 backlightctl:
 	${CC} ${OPTIONS} -std=gnu17 ${SRCS1} -DVERSS=${VERSION} -DCONFIGS=${CONFIGMACRO} -o ${PROG1}
 
