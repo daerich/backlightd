@@ -5,7 +5,7 @@ PROG1= backlightctl
 # Your compiler
 CC=gcc
 OPTIONS="-Wall"
-VERSION='"1.8"'
+VERSION='"1.8.5"'
 # Configure to your liking
 DAEMONGROUP='"video"'
 CONFIGMACRO='"/home/daerich/backlightd/backlight.conf"'
