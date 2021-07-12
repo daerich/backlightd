@@ -89,9 +89,7 @@ static void backlightctl(char * const value)
 	}
 	else{
 		FILE* strm = fopen(CONFIG_STRING,"w");
-		char buf[12] = {0};
-		snprintf(buf,12,"%d",scale);
-		fwrite(buf,1,12,strm);
+		fprintf(strm,"%d", scale);
 		fclose(strm);
 		backlightd_pid = procparse("backlightd");
 		if(backlightd_pid == 0)

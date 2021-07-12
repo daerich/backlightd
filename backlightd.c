@@ -132,10 +132,7 @@ static int read_drv(char * filen,int mode, int nbrights)
 	}
 	else if(mode == WRITE){
 		backlight=fopen(filen,"r+");
-		char numbuf[12] = {0};
-		snprintf(numbuf,12,"%d",nbrights);
-		fwrite(numbuf,1,12,backlight);
-
+		fprintf(backlight,"%d",nbrights);
 		fclose(backlight);
 		backlight = NULL;
 		return 0;
