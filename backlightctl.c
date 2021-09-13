@@ -13,7 +13,6 @@
 static void usage(void);
 static void printbckl(void);
 static void backlightctl(char* const);
-static void get_pid(void);
 static pid_t backlightd_pid = 0;
 
 int main(int argc,char ** argv)
@@ -50,18 +49,6 @@ static void usage(void)
 			"Version " VERSION " by daerich.\n");
 }
 
-static void get_pid(void)
-{
-   FILE * pidstrm = fopen("/tmp/backlightd.pid","r");
-   if(pidstrm == NULL){
-	   fprintf(stdout,"Could'nt find pid!\nMake sure backlightd is running!\n");
-	   exit(1);
-	}
-   char buf[19] = {0};
-   fread(buf,19,1,pidstrm);
-   backlightd_pid = atol(buf);
-   fclose(pidstrm);
-}
 
 static void printbckl(void)
 {
@@ -76,7 +63,7 @@ static void printbckl(void)
 		}
 	fclose(strm);
 	buf=addread(buf,'\0',length);
-	printf("Brightness scale: %s%\n",buf);
+	printf("Brightness scale: %s%%\n",buf);
 	free(buf);
 }
 
@@ -96,7 +83,9 @@ static void backlightctl(char * const value)
 			fprintf(stderr,"Could'nt find pid,check for proc"\
 					"Permissions!");
 		if(kill(backlightd_pid,SIGUSR1)!= 0){
+#ifdef DEBUG
 			int err = errno;
+#endif
 			fprintf(stdout,"Call failed!\n");
 #ifdef DEBUG
 			switch(errno){

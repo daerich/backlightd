@@ -18,8 +18,6 @@ static int read_drv(char *,int,int);
 static void free_buffers(void);
 static void set_brightness(float);
 static void loop(int);
-static void post_pid(void);
-static gid_t get_gid(char *);
 
 static int brightness = 0;
 static int max_bright = 0;
@@ -49,6 +47,8 @@ int main(int argc, char**argv)
 	openlog("backlightd",LOG_PID,LOG_DAEMON);
 	signal(SIGTERM,handler);
 	signal(SIGUSR1,handler);
+	
+	syslog(LOG_NOTICE,"Started backlightd! Version "VERSION);
 
 	if(access(INTEL_STRING "brightness",(R_OK/*|W_OK*/)) == 0){
 		mode=INTEL;
@@ -82,22 +82,13 @@ int main(int argc, char**argv)
 	if(backlight != NULL) 			
 		fclose(backlight);
 
-	printf("[backlightd]SIGTERM received\n");
 	syslog(LOG_WARNING,"Terminating on SIGTERM");
-exit: 	
+
 	free_buffers();
 	closelog();
 	return 0;
 }
 
-static gid_t get_gid(char * gidname)
-{
-	struct group * data = getgrnam(gidname);
-	if(data == NULL)
-		return 0;
-	else
-		return data->gr_gid;
-}
 
 static void handler(int signal) /* Don't use non-async logic */
 {
@@ -201,30 +192,12 @@ static void loop(int firstrun)
 
 }
 
-static void post_pid(void)
-{
-	if(access("/tmp/backlightd.pid",R_OK) == 0)
-		unlink("/tmp/backlightd.pid");
 
-	FILE* strm = fopen("/tmp/backlightd.pid","w");
-	char buf[19]= {0};
-	snprintf(buf,19,"%lld",(long)getpid());
-	fwrite(buf,19,1,strm);
-	fclose(strm);
-	gid_t grpid = get_gid(VIDEOGROUP);
-	if(grpid == 0 )
-		syslog(LOG_WARNING,"Could'nt get gid of daemon process!"\
-				"backlightctl might be unusable!\n");
-	else 
-		chown("/tmp/backlightd.pid",getuid(),grpid);
-	chmod("/tmp/backlightd.pid",(S_IRUSR|S_IRGRP));
-
-}
 
 static void set_brightness(float value)
 {	
 	if((value < 10.0) || (value > 100.0) ){
-		syslog(LOG_WARNING,"Error wrong value of %d!",value);
+		syslog(LOG_WARNING,"Error wrong value of %f!",value);
 		return;
 	}
 	
