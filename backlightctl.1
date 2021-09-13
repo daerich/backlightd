@@ -15,7 +15,6 @@ signals it to reload.
 p
 .B Print 
 current brightness scale in percent
-.PP
 .TP
 s
 .B Set
@@ -23,16 +22,15 @@ current brightness to
 .B SCALE
 ,where scale is an integer between 10 and 100 (naturally).
 .SH FILES
-.IP 
-.I /tmp/backlightd.pid \- pid file for backlightctl
-
 .I /etc/backlightd_d.conf \-  backlightd's configuration file
 .SH NOTES
 .B Only the first letter of the command is checked.
 
 The rest is ignored(commands resemble "BSD-style")
-.SH AUTHOR
-Written by daerich and tracked on github.com
+.SH AUTHORS
+.UR https://github.com/daerich/backlightd.git
+Written by DaErich and tracked on GitHub
+.UE
 .SH EXAMPLES
 Set brightness to 40%:
 .IP
