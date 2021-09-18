@@ -45,8 +45,15 @@ static enum COMM mode = 0;
 int main(int argc, char**argv)
 {
 	openlog("backlightd",LOG_PID,LOG_DAEMON);
-	signal(SIGTERM,handler);
-	signal(SIGUSR1,handler);
+	struct sigaction sigconf = { 
+		handler,
+		0,
+		0,
+		SA_RESTART,
+		0
+	};
+	sigaction(SIGTERM, &sigconf, NULL);
+	sigaction(SIGUSR1, &sigconf, NULL);
 	
 	syslog(LOG_NOTICE,"Started backlightd! Version "VERSION);
 
@@ -60,7 +67,7 @@ int main(int argc, char**argv)
 			syslog(LOG_WARNING,"Using acpi driver!");
 		}
 		else{
-			if(errno = EACCES)
+			if(errno == EACCES)
 				syslog(LOG_WARNING,"Can't write to file!;Exiting!");
 			else
 				syslog(LOG_WARNING,"Could not find proper drivers!;Exiting!");

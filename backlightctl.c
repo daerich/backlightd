@@ -13,7 +13,6 @@
 static void usage(void);
 static void printbckl(void);
 static void backlightctl(char* const);
-static pid_t backlightd_pid = 0;
 
 int main(int argc,char ** argv)
 {
@@ -78,7 +77,7 @@ static void backlightctl(char * const value)
 		FILE* strm = fopen(CONFIG_STRING,"w");
 		fprintf(strm,"%d", scale);
 		fclose(strm);
-		backlightd_pid = procparse("backlightd");
+		pid_t backlightd_pid = procparse("backlightd");
 		if(backlightd_pid == 0)
 			fprintf(stderr,"Could'nt find pid,check for proc"\
 					"Permissions!");
