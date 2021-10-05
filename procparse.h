@@ -13,7 +13,7 @@ static pid_t procparse(char*);
 static pid_t procparse(char * proc)
 {		
 	DIR* stream=opendir("/proc/");
-	struct dirent * data ={0};
+	struct dirent * data = NULL;
        	while((data=readdir(stream))!= NULL){
 		if(in_numbers(data->d_name)){
 			if(check_proc(proc,data->d_name,"/proc/")){
@@ -26,12 +26,12 @@ static pid_t procparse(char * proc)
 }
 static int check_proc(char * proc,char * dat,char * defdir){	
 	char * exe = "/exe";
-	char * conc_s = malloc((strlen(dat)+strlen(defdir)+strlen(exe)) * sizeof(char));
-	conc_s=memcpy(conc_s,defdir,strlen(defdir));
-	conc_s=strcat(conc_s,dat);
-	conc_s=strcat(conc_s,exe);
-	char * buf = malloc(4096 * sizeof(char)); /* Current kernel path limit */
-	buf=memset(buf,0,4096); /* Clean up dirty pages(don't bug OS with calloc) */
+	char * conc_s = malloc((strlen(dat)+strlen(defdir)+strlen(exe) + 1) * sizeof(char));
+	strcpy(conc_s,defdir);
+	strcat(conc_s,dat);
+	strcat(conc_s,exe);
+	char * buf = malloc(4097 * sizeof(char)); /* Current kernel path limit */
+	memset(buf,0,4097); /* Clean up dirty pages(don't bug OS with calloc) */
 	readlink(conc_s,buf,4096);
 	if(check_by_slsh(buf,proc)){
 

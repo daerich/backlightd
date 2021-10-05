@@ -11,17 +11,16 @@
 #include <grp.h>
 
 #include "common.h"
-#include "backlightd.h"
 
 static void handler(int);
 static int read_drv(char *,int,int);
-static void free_buffers(void);
 static void set_brightness(float);
 static void loop(int);
 
+enum COMM{READ,WRITE,INTEL,AMD};
+
 static int brightness = 0;
 static int max_bright = 0;
-extern FILE * backlight = NULL;
 static volatile sig_atomic_t eflag = 0;
 static volatile sig_atomic_t sflag = 0;
 static enum COMM mode = 0;
@@ -82,16 +81,12 @@ int main(int argc, char**argv)
 			syslog(LOG_NOTICE,"Reloading backlight config");
 			sflag = 0;
 		}
-		sleep(3);
+		pause();
 	}
 	loop(0);
 	
-	if(backlight != NULL) 			
-		fclose(backlight);
-
 	syslog(LOG_WARNING,"Terminating on SIGTERM");
 
-	free_buffers();
 	closelog();
 	return 0;
 }
@@ -107,13 +102,15 @@ static void handler(int signal) /* Don't use non-async logic */
 }
 
 static int read_drv(char * filen,int mode, int nbrights)
-{	
+{
+	FILE* backlight = NULL;	
 	if(mode == READ){ 
 		backlight=fopen(filen,"r");
-
+		
 		char ch = 0;
 		char * buf = NULL;
 		int length = 0;
+		int res = 0;
 		for(;(ch=fgetc(backlight))!= EOF;length++){
 			if(ch == '\n' ) /* We don't need newlines */
 				break;
@@ -122,17 +119,15 @@ static int read_drv(char * filen,int mode, int nbrights)
 		}
 		buf=addread(buf,'\0',length);
 		
-		ptr_tbl_add(buf);
-		
+		res = atoi(buf);
+		free(buf);	
 		fclose(backlight);
-		backlight = NULL;
-		return atoi(buf);
+		return res;
 	}
 	else if(mode == WRITE){
 		backlight=fopen(filen,"r+");
 		fprintf(backlight,"%d",nbrights);
 		fclose(backlight);
-		backlight = NULL;
 		return 0;
 	}
 	
@@ -172,8 +167,8 @@ static void loop(int firstrun)
 				if(firstrun){
 					if(access(CONFIG_STRING,(R_OK|W_OK)) == 0)
 					{
-					brightness=read_drv(CONFIG_STRING,READ,0);
-					set_brightness(brightness);
+						brightness=read_drv(CONFIG_STRING,READ,0);
+						set_brightness(brightness);
 					}
 					else{
 						syslog(LOG_WARNING,"Can't find config_file!");
@@ -190,7 +185,6 @@ static void loop(int firstrun)
 		}
 		
 	
-	free_buffers();
 #ifdef DEBUG
 	printf("Bright:%d,Max_Bright:%d\n",brightness,max_bright);
 	fflush(stdout); /* Flush before sleep */
@@ -217,13 +211,5 @@ static void set_brightness(float value)
 	}
 	brightness=(int)value;
 }	
-
-static void free_buffers(void)
-{
-	for(int x = 0;x <ptr_tbl_l;x++){
-		SAFE_FREE(ptr_tbl[x]);
-	}
-	ptr_tbl_l = 0; /* Reset table(the verbose way) */
-}
 
 

@@ -1,6 +1,0 @@
-#ifndef BACKLIGHTD_H
-#define BACKLIGHTD_H
-
-enum COMM{READ,WRITE,INTEL,AMD,CONTROL = -1};
-
-#endif /* BACKLIGHTD_H */
