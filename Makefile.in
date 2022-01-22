@@ -5,31 +5,17 @@ PROG1= backlightctl
 # Your compiler
 CC=gcc
 OPTIONS="-Wall"
-VERSION='"1.9.0"'
+VERSION='"2.1.0"'
 # Configure to your liking
-DAEMONGROUP='"video"'
 CONFIGMACRO='"/home/daerich/backlightd/backlight.conf"'
-CONFIG="/home/daerich/backlightd/backlight.conf"
 
 all: 
-	${CC} ${OPTIONS} -std=gnu17 ${SRCS1} -DVERSS=${VERSION} -DCONFIGS=${CONFIGMACRO} -o ${PROG1}
-	${CC} ${OPTIONS} -std=gnu17 ${SRCS} -DVERSION=${VERSION} -DVIDEOGROUPT=${DAEMONGROUP} -DCONFIGS=${CONFIGMACRO} -o ${PROG}
+	${CC} ${OPTIONS} -std=gnu17 ${SRCS1} -DVERSION=${VERSION}  -DCONFIG_STRING=${CONFIGMACRO} -o ${PROG1}
+	${CC} ${OPTIONS} -std=gnu17 ${SRCS} -DVERSION=${VERSION}  -DCONFIG_STRING=${CONFIGMACRO} -o ${PROG}
 		
-backlightctl:
-	${CC} ${OPTIONS} -std=gnu17 ${SRCS1} -DVERSS=${VERSION} -DCONFIGS=${CONFIGMACRO} -o ${PROG1}
-
-backlightd:
-	${CC} ${OPTIONS} -std=gnu17 ${SRCS} -DVIDEOGROUPT=${DAEMONGROUP} -DCONFIGS=${CONFIGMACRO} -o ${PROG}
-
-dist: all install
-
 test:
-	${CC} ${OPTIONS} -g -std=gnu17 -DDEBUG -DVIDEOGROUPT=${DAEMONGROUP} -DDPATH='"/tmp/backlight_test/"'  ${SRCS} -o ${PROG}
-	${CC} ${OPTIONS} -g -std=gnu17 -DDEBUG ${SRCS1} -DVERSS=${VERSION} -DCONFIGS='"/tmp/backlight_test/backlight_d.conf"' -o ${PROG1}
-
-install:
-	install -v -D -m 755 ${PROG1} /opt/bin/${PROG1}
-	install -v -D -m 644 distrib/backlight.conf ${CONFIG}
+	${CC} ${OPTIONS} -g -std=gnu17  -DCONFIG_STRING='"/tmp/backlight/backlightd.conf"' ${SRCS} -DVERSION=${VERSION} -o ${PROG}
+	${CC} ${OPTIONS} -g -std=gnu17 -DCONFIG_STRING='"/tmp/backlight/backlightd.conf"' ${SRCS1} -DVERSION=${VERSION} -o ${PROG1}
 
 clean:
 	rm -v ${PROG} ${PROG2}

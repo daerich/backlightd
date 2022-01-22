@@ -10,8 +10,6 @@
 #include <sys/stat.h>
 #include <grp.h>
 
-#include "common.h"
-
 static void handler(int);
 static int read_drv(char *,int,int);
 static void set_brightness(float);
@@ -25,21 +23,14 @@ static volatile sig_atomic_t eflag = 0;
 static volatile sig_atomic_t sflag = 0;
 static enum COMM mode = 0;
 
-#define VIDEOGROUP VIDEOGROUPT
-
-#ifndef DEBUG
-
+#ifndef INTEL_STRING
 #define INTEL_STRING "/sys/class/backlight/intel_backlight/"
-#define ACPI_STRING  "/sys/class/backlight/acpi_video0/"
-#define CONFIG_STRING CONFIGS
-
-#else
-
-#define INTEL_STRING DPATH
-#define ACPI_STRING DPATH
-#define CONFIG_STRING DPATH "backlight_d.conf"
-
 #endif
+#ifndef ACPI_STRING
+#define ACPI_STRING  "/sys/class/backlight/acpi_video0/"
+#endif
+/* #define CONFIG_STRING */
+/* #define VERSION*/
 
 int main(int argc, char**argv)
 {
@@ -56,27 +47,26 @@ int main(int argc, char**argv)
 	
 	syslog(LOG_NOTICE,"Started backlightd! Version "VERSION);
 
-	if(access(INTEL_STRING "brightness",(R_OK/*|W_OK*/)) == 0){
+	if (access(INTEL_STRING "brightness",(R_OK/*|W_OK*/)) == 0) {
 		mode=INTEL;
 		syslog(LOG_NOTICE,"Using intel driver!");
 	}
-	else
-		if(access(ACPI_STRING "brightness",(R_OK/*|W_OK*/)) == 0){
+	else if (access(ACPI_STRING "brightness",(R_OK/*|W_OK*/)) == 0) {
 			mode=AMD;
 			syslog(LOG_WARNING,"Using acpi driver!");
-		}
-		else{
-			if(errno == EACCES)
+		} else {
+			if (errno == EACCES) {
 				syslog(LOG_WARNING,"Can't write to file!;Exiting!");
-			else
+			} else {
 				syslog(LOG_WARNING,"Could not find proper drivers!;Exiting!");
+			}
 			closelog();
 			return 1;
 		}
 	loop(1);
 
-	while(!eflag){
-		if(sflag){
+	while (!eflag) {
+		if (sflag) {
 			loop(1);
 			syslog(LOG_NOTICE,"Reloading backlight config");
 			sflag = 0;
@@ -94,9 +84,9 @@ int main(int argc, char**argv)
 
 static void handler(int signal) /* Don't use non-async logic */
 {
-	if(signal == SIGTERM)
+	if (signal == SIGTERM)
 		eflag = 1;
-	else if(signal == SIGUSR1)
+	else if (signal == SIGUSR1)
 		sflag = 1;
 
 }
@@ -104,29 +94,19 @@ static void handler(int signal) /* Don't use non-async logic */
 static int read_drv(char * filen,int mode, int nbrights)
 {
 	FILE* backlight = NULL;	
-	if(mode == READ){ 
-		backlight=fopen(filen,"r");
+	if (mode == READ){ 
+		backlight = fopen(filen,"r");
 		
-		char ch = 0;
-		char * buf = NULL;
-		int length = 0;
+		char buf[21] = {0} ;
 		int res = 0;
-		for(;(ch=fgetc(backlight))!= EOF;length++){
-			if(ch == '\n' ) /* We don't need newlines */
-				break;
-
-			buf=addread(buf,ch,length);
-		}
-		buf=addread(buf,'\0',length);
-		
+		fgets(buf, 20, backlight);
 		res = atoi(buf);
-		free(buf);	
 		fclose(backlight);
 		return res;
 	}
-	else if(mode == WRITE){
-		backlight=fopen(filen,"r+");
-		fprintf(backlight,"%d",nbrights);
+	else if (mode == WRITE){
+		backlight = fopen(filen, "r+");
+		fprintf(backlight,"%d", nbrights);
 		fclose(backlight);
 		return 0;
 	}
@@ -138,51 +118,44 @@ static int read_drv(char * filen,int mode, int nbrights)
 
 static void loop(int firstrun)
 {
-	if( mode == INTEL){
+	if (mode == INTEL) {
 		max_bright=read_drv(INTEL_STRING "max_brightness",READ,0);
-			if(firstrun){
-				if(access(CONFIG_STRING,(R_OK|W_OK)) == 0)
+			if (firstrun) {
+				if (access(CONFIG_STRING,(R_OK|W_OK)) == 0)
 				{
 					brightness=read_drv(CONFIG_STRING,READ,0);
 					set_brightness(brightness);
-				}
-				else{
+				} else{ 
 					syslog(LOG_WARNING,"Can't find config_file!");
 					closelog();
 					exit(1);
 				}
 				firstrun = 0;
-			}
-			else{
+			} else {
 				brightness=read_drv(INTEL_STRING "brightness", READ,0);
 				brightness=(((float)brightness/max_bright) * 100);
 				truncate(CONFIG_STRING ,0);
 				read_drv(CONFIG_STRING ,WRITE,brightness);
 			}
-	}
-	else
-		if(mode == AMD) {
-			max_bright=read_drv(ACPI_STRING "max_brightness",READ,0);
-
-				if(firstrun){
-					if(access(CONFIG_STRING,(R_OK|W_OK)) == 0)
-					{
-						brightness=read_drv(CONFIG_STRING,READ,0);
-						set_brightness(brightness);
-					}
-					else{
-						syslog(LOG_WARNING,"Can't find config_file!");
-						closelog();
-						exit(1);
-					}
-				}
-				else{
-					brightness=read_drv(ACPI_STRING "brightness", READ,0);
-					brightness=(((float)brightness/max_bright) * 100);
-					truncate(CONFIG_STRING,0);
-					read_drv(CONFIG_STRING,WRITE,brightness);
-				}
+	} else if (mode == AMD) {
+		max_bright=read_drv(ACPI_STRING "max_brightness",READ,0);
+		if (firstrun){
+			if (access(CONFIG_STRING,(R_OK|W_OK)) == 0)
+			{
+				brightness=read_drv(CONFIG_STRING,READ,0);
+				set_brightness(brightness);
+			} else {
+				syslog(LOG_WARNING,"Can't find config_file!");
+				closelog();
+				exit(1);
+			}
+		} else {
+			brightness=read_drv(ACPI_STRING "brightness", READ,0);
+			brightness=(((float)brightness/max_bright) * 100);
+			truncate(CONFIG_STRING,0);
+			read_drv(CONFIG_STRING,WRITE,brightness);
 		}
+	}
 		
 	
 #ifdef DEBUG
@@ -197,19 +170,17 @@ static void loop(int firstrun)
 
 static void set_brightness(float value)
 {	
-	if((value < 10.0) || (value > 100.0) ){
+	if ((value < 10.0) || (value > 100.0) ) {
 		syslog(LOG_WARNING,"Error wrong value of %f!",value);
 		return;
 	}
 	
 	float scale = (value/100) * (float)max_bright;
-	if(mode == INTEL){
+	if( mode == INTEL){
 		read_drv(INTEL_STRING "brightness",WRITE,scale);
 	}
-	else if(mode == AMD){
+	else if (mode == AMD) {
 		read_drv(ACPI_STRING "brightness",WRITE,scale);
 	}
 	brightness=(int)value;
 }	
-
-
