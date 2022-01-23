@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <signal.h>
 #include <stdlib.h>
-#include <string.h>
 #include <errno.h>
 #include <syslog.h>
 #include <unistd.h>
