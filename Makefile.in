@@ -5,7 +5,7 @@ PROG1= backlightctl
 # Your compiler
 CC=gcc
 OPTIONS="-Wall"
-VERSION='"2.1.0"'
+VERSION='"2.1.3"'
 # Configure to your liking
 CONFIGMACRO='"/home/daerich/backlightd/backlight.conf"'
 
